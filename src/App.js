@@ -1,23 +1,58 @@
-import logo from './logo.svg';
+import React, { useState } from 'react';
 import './App.css';
+import TodoInput from './TodoInput';
+import TodoItem from './TodoItem';
+import Filter from './Filter';
 
 function App() {
+  const [tasks, setTasks] = useState([]);
+  const [filter, setFilter] = useState('all'); 
+
+  const addTask = (taskText) => {
+    setTasks([
+      ...tasks,
+      { id: Date.now(), text: taskText, completed: false }
+    ]);
+  };
+
+  const toggleTaskCompletion = (taskId) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === taskId ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (taskId) => {
+    setTasks(tasks.filter((task) => task.id !== taskId));
+  };
+
+  const filterTasks = () => {
+    switch (filter) {
+      case 'completed':
+        return tasks.filter((task) => task.completed);
+      case 'incomplete':
+        return tasks.filter((task) => !task.completed);
+      default:
+        return tasks;
+    }
+  };
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>To-DoApp List</h1>
+      <TodoInput addTask={addTask} />
+      <Filter setFilter={setFilter} />
+      <ul>
+        {filterTasks().map((task) => (
+          <TodoItem
+            key={task.id}
+            task={task}
+            toggleTaskCompletion={toggleTaskCompletion}
+            deleteTask={deleteTask}
+          />
+        ))}
+      </ul>
     </div>
   );
 }
